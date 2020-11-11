@@ -1,0 +1,4 @@
+C:\Users\27236\Desktop\编译原理\RE2FA\Debug\RE2FA.exe
+C:\Users\27236\Desktop\编译原理\RE2FA\Debug\RE2FA.pdb
+C:\Users\27236\Desktop\Compilation Principle\RE2FA\Debug\RE2FA.exe
+C:\Users\27236\Desktop\Compilation Principle\RE2FA\Debug\RE2FA.pdb

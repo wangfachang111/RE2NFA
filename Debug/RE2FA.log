@@ -1,0 +1,7 @@
+﻿  main.cpp
+  RE2NFA_Converter.cpp
+C:\Users\27236\Desktop\Compilation Principle\RE2FA\RE2NFA_Converter.cpp(25,20): warning C4018: “<”: 有符号/无符号不匹配
+  RE2NFA_Converter.h
+  正在生成代码...
+Debug\RE2NFA_Converter.obj : warning LNK4042: 对象被多次指定；已忽略多余的指定
+  RE2FA.vcxproj -> C:\Users\27236\Desktop\Compilation Principle\RE2FA\Debug\RE2FA.exe
