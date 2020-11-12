@@ -25,4 +25,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="Result.txt">
+      <Filter>资源文件</Filter>
+    </Text>
+    <Text Include="inputString.txt">
+      <Filter>资源文件</Filter>
+    </Text>
+  </ItemGroup>
 </Project>

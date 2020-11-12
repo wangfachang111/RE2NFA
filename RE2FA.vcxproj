@@ -143,6 +143,10 @@
     <ClCompile Include="RE2NFA_Converter.cpp" />
     <ClCompile Include="RE2NFA_Converter.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="inputString.txt" />
+    <Text Include="Result.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

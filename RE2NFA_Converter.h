@@ -49,9 +49,11 @@ typedef struct _singleNFA
 typedef struct _NFA {
 	
 	//起始状态集
-	vector<char> startStateSet;
+	//vector<char> startStateSet;
+	int startState;
+	int endState;
 	//终结状态集
-	vector<char> endStateSet;
+	//vector<char> endStateSet;
 	//边集
 	vector<EDGE> edgeSet;
 }NFA;

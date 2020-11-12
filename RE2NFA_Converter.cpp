@@ -4,7 +4,7 @@
 //判断字符是操作符还是操作数(字母)
 int RE2NFA_Converter::getType(char ch)
 {
-	if (ch == '*' || ch == '|')
+	if (ch == '*' || ch == '|' || ch=='+')
 	{
 		return OP;
 	}
@@ -42,6 +42,8 @@ void RE2NFA_Converter::createSingleNFA(char syboml, singleNFA* nfa1, vector<EDGE
 	{
 		nfa1->start = this->state;
 		nfa1->end = ++state;
+
+		state++;
 	}
 	//给nfa的两个初始和终结结点加上边
 	e.start = nfa1->start;
@@ -82,16 +84,25 @@ void RE2NFA_Converter::mergeNFA_OR(singleNFA* mergeNFA, singleNFA* NFA1, singleN
 
 void RE2NFA_Converter::mergeNFA_AND(singleNFA* mergeNFA, singleNFA* NFA1, singleNFA* NFA2, vector<EDGE>edgeSet)
 {
-	mergeNFA->start = NFA1->start;
-	mergeNFA->end = NFA2->end;
-	for (unsigned int i = 0; i < edgeSet.size(); i++)
+	mergeNFA->start = NFA2->start;
+	mergeNFA->end = NFA1->end;
+
+	singleNFA temp;
+	temp.start = NFA2->end;
+	temp.end = NFA1->start;
+	createSingleNFA('#', &temp, nfa.edgeSet);
+	
+	//state++;
+
+	
+	/*for (unsigned int i = 0; i < edgeSet.size(); i++)
 	{
 		//将两个结点合并成一个
 		if (edgeSet[i].start == NFA2->start)
 		{
 			edgeSet[i].start = NFA1->end;
 		}
-	}
+	}*/
 }
 
 void RE2NFA_Converter::mergeNFA_Cycle(singleNFA* mergeNFA, singleNFA* NFA1, vector<EDGE>edgeSet)
@@ -105,11 +116,13 @@ void RE2NFA_Converter::mergeNFA_Cycle(singleNFA* mergeNFA, singleNFA* NFA1, vect
 	temp.start = NFA1->end;
 	temp.end = state;
 	createSingleNFA('#', &temp, edgeSet);
-
+	mergeNFA->end = state;
 
 	temp.start = mergeNFA->start;
 	temp.end = mergeNFA->end;
 	createSingleNFA('#', &temp, edgeSet);
+
+	state++;
 }
 
 void RE2NFA_Converter::outPutResult()
@@ -124,13 +137,14 @@ void RE2NFA_Converter::outPutResult()
 		cout << this->re.charSet[i] << " ";
 	cout << endl;
 	cout << "==================NFA===================" << endl;		//同上， 输入初态集、终态集、NFA边集 
-	cout << "初态集：";
-	for (unsigned int i = 0; i < this->nfa.startStateSet.size(); i++)
-		cout << this->nfa.startStateSet[i] << " ";
+	cout << "初态集：" << nfa.startState << endl;
+
+	//for (unsigned int i = 0; i < this->nfa.startStateSet.size(); i++)
+	//	cout << this->nfa.startStateSet[i] << " ";
 	cout << endl;
-	cout << "终态集：";
-	for (unsigned int i = 0; i < this->nfa.endStateSet.size(); i++)
-		cout << this->nfa.endStateSet[i] << " ";
+	cout << "终态集：" << nfa.endState << endl;
+	//for (unsigned int i = 0; i < this->nfa.endStateSet.size(); i++)
+	//	cout << this->nfa.endStateSet[i] << " ";
 	cout << endl;
 
 	cout << "NFA的边集：" << endl;
@@ -142,6 +156,28 @@ void RE2NFA_Converter::outPutResult()
 			<< this->nfa.edgeSet[i].end << endl;
 	}
 	cout << endl;
+
+
+
+	fstream out;
+	out.open("Result.txt",ios::out);
+	if (out.fail())
+	{
+		cout << "Result.txt文件打开失败" << endl;
+		exit(0);
+	}
+	out << "digraph nfa{" << endl;
+	out << "rankdir=LR;";
+	for (unsigned int i = 0; i < this->nfa.edgeSet.size(); i++)
+	{
+		out << nfa.edgeSet[i].start << "->" << nfa.edgeSet[i].end << "[label=\"" << nfa.edgeSet[i].symbol << "\"];" << endl;
+	}
+	out << nfa.startState << "[color=green];" << endl;
+	out << nfa.endState << "[color=red];" << endl;
+
+	
+	out << "}";
+	out.close();
 }
 void RE2NFA_Converter::RE2NFA() {
 
@@ -187,8 +223,10 @@ void RE2NFA_Converter::RE2NFA() {
 					singleNFAStack.push(mergeNFA);
 				}
 				//堆栈中是左括号，则当前的两个字符应该连接起来，进行and操作
-				else if (OPStack.size()>0 && OPStack.top() == '(')
+				else if (OPStack.size()>0 && OPStack.top() == '+' )//????????????
 				{
+					OPStack.pop();//新增
+
 					stackTop1NFA = singleNFAStack.top();
 					singleNFAStack.pop();
 					stackTop2NFA = singleNFAStack.top();
@@ -198,6 +236,17 @@ void RE2NFA_Converter::RE2NFA() {
 
 					singleNFAStack.push(mergeNFA);
 				}
+			/*	else if (OPStack.size() == 0)
+				{
+					stackTop1NFA = singleNFAStack.top();
+					singleNFAStack.pop();
+					stackTop2NFA = singleNFAStack.top();
+					singleNFAStack.pop();
+
+					mergeNFA_AND(&mergeNFA, &stackTop1NFA, &stackTop2NFA, this->nfa.edgeSet);
+
+					singleNFAStack.push(mergeNFA);
+				}*/
 			}
 		}
 		//如果是操作符
@@ -212,7 +261,8 @@ void RE2NFA_Converter::RE2NFA() {
 				singleNFAStack.push(mergeNFA);
 
 			}
-			else if (re.inputString[i] == '|')
+			//需要下一个才可以进行操作，先入栈
+			else if (re.inputString[i] == '|' || re.inputString[i]=='+')
 			{
 				OPStack.push(re.inputString[i]);
 			}
@@ -223,10 +273,43 @@ void RE2NFA_Converter::RE2NFA() {
 		}
 	}
 
+	while (OPStack.size() != 0)
+	{
+		if (OPStack.top() == '+' && singleNFAStack.size() >= 2)
+		{
+			OPStack.pop();
+			stackTop1NFA = singleNFAStack.top();
+			singleNFAStack.pop();
+			stackTop2NFA = singleNFAStack.top();
+			singleNFAStack.pop();
+
+			mergeNFA_AND(&mergeNFA, &stackTop1NFA, &stackTop2NFA, this->nfa.edgeSet);
+
+			singleNFAStack.push(mergeNFA);
+		}
+	}
+
+	if (singleNFAStack.size() >= 2)
+	{
+		stackTop1NFA = singleNFAStack.top();
+		singleNFAStack.pop();
+		stackTop2NFA = singleNFAStack.top();
+		singleNFAStack.pop();
+
+		mergeNFA_AND(&mergeNFA, &stackTop1NFA, &stackTop2NFA, this->nfa.edgeSet);
+		singleNFAStack.push(mergeNFA);
+	}
+
 	//全部合并结束后,最后入栈的那个就是最后的NFA的状态。
+
+	cout << "最后栈中的nfa的个数是：" << singleNFAStack.size() << "---------------" << endl;
+	cout << singleNFAStack.top().start;
+	cout << singleNFAStack.top().end;
 	if (singleNFAStack.size() > 0)
 	{
-		this->nfa.startStateSet.push_back(singleNFAStack.top().start);
-		this->nfa.endStateSet.push_back(singleNFAStack.top().end);
+		//this->nfa.startStateSet.push_back(singleNFAStack.top().start);
+		//this->nfa.endStateSet.push_back(singleNFAStack.top().end);
+		this->nfa.startState = singleNFAStack.top().start;
+		this->nfa.endState = singleNFAStack.top().end;
 	}
 }
