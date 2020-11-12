@@ -95,14 +95,14 @@ void RE2NFA_Converter::mergeNFA_AND(singleNFA* mergeNFA, singleNFA* NFA1, single
 	//state++;
 
 	
-	/*for (unsigned int i = 0; i < edgeSet.size(); i++)
+	for (unsigned int i = 0; i < edgeSet.size(); i++)
 	{
 		//将两个结点合并成一个
 		if (edgeSet[i].start == NFA2->start)
 		{
 			edgeSet[i].start = NFA1->end;
 		}
-	}*/
+	}
 }
 
 void RE2NFA_Converter::mergeNFA_Cycle(singleNFA* mergeNFA, singleNFA* NFA1, vector<EDGE>edgeSet)
@@ -127,7 +127,6 @@ void RE2NFA_Converter::mergeNFA_Cycle(singleNFA* mergeNFA, singleNFA* NFA1, vect
 
 void RE2NFA_Converter::outPutResult()
 {
-	//fstream out("Result.txt");
 	cout << "=================Start==================" << endl;	//输入流 
 	cout << endl;
 
@@ -135,17 +134,11 @@ void RE2NFA_Converter::outPutResult()
 	cout << "正规式输入符：";
 	for (unsigned int i = 0; i < this->re.charSet.size(); i++)				//输入正规式输入符 
 		cout << this->re.charSet[i] << " ";
+
 	cout << endl;
 	cout << "==================NFA===================" << endl;		//同上， 输入初态集、终态集、NFA边集 
 	cout << "初态集：" << nfa.startState << endl;
-
-	//for (unsigned int i = 0; i < this->nfa.startStateSet.size(); i++)
-	//	cout << this->nfa.startStateSet[i] << " ";
-	cout << endl;
 	cout << "终态集：" << nfa.endState << endl;
-	//for (unsigned int i = 0; i < this->nfa.endStateSet.size(); i++)
-	//	cout << this->nfa.endStateSet[i] << " ";
-	cout << endl;
 
 	cout << "NFA的边集：" << endl;
 	for (unsigned int i = 0; i < this->nfa.edgeSet.size(); i++)
@@ -159,6 +152,7 @@ void RE2NFA_Converter::outPutResult()
 
 
 
+	//将结果输出到Result.txt文件
 	fstream out;
 	out.open("Result.txt",ios::out);
 	if (out.fail())
@@ -174,9 +168,8 @@ void RE2NFA_Converter::outPutResult()
 	}
 	out << nfa.startState << "[color=green];" << endl;
 	out << nfa.endState << "[color=red];" << endl;
-
-	
 	out << "}";
+
 	out.close();
 }
 void RE2NFA_Converter::RE2NFA() {
@@ -186,8 +179,6 @@ void RE2NFA_Converter::RE2NFA() {
 	stack<singleNFA> singleNFAStack;
 	singleNFA stackTop1NFA, stackTop2NFA;
 	singleNFA currentNFA, mergeNFA;
-	//
-	//stack<>
 
 
 	//遍历输入字符串
@@ -205,7 +196,8 @@ void RE2NFA_Converter::RE2NFA() {
 			createSingleNFA(re.inputString[i], &currentNFA, this->nfa.edgeSet);
 			//将当前的单个nfa加入到栈中
 			singleNFAStack.push(currentNFA);
-			//如果栈中存在两个以上的单个nfa，就进行合并
+
+			//如果栈中存在两个以上的单个nfa，判断是否可以进行合并
 			if (singleNFAStack.size() >= 2)
 			{
 				//如果栈顶是|,就进行两个nfa的|的合并操作
@@ -223,7 +215,7 @@ void RE2NFA_Converter::RE2NFA() {
 					singleNFAStack.push(mergeNFA);
 				}
 				//堆栈中是左括号，则当前的两个字符应该连接起来，进行and操作
-				else if (OPStack.size()>0 && OPStack.top() == '+' )//????????????
+				else if (OPStack.size()>0 && OPStack.top() == '+' )//
 				{
 					OPStack.pop();//新增
 
@@ -236,17 +228,6 @@ void RE2NFA_Converter::RE2NFA() {
 
 					singleNFAStack.push(mergeNFA);
 				}
-			/*	else if (OPStack.size() == 0)
-				{
-					stackTop1NFA = singleNFAStack.top();
-					singleNFAStack.pop();
-					stackTop2NFA = singleNFAStack.top();
-					singleNFAStack.pop();
-
-					mergeNFA_AND(&mergeNFA, &stackTop1NFA, &stackTop2NFA, this->nfa.edgeSet);
-
-					singleNFAStack.push(mergeNFA);
-				}*/
 			}
 		}
 		//如果是操作符
@@ -273,6 +254,7 @@ void RE2NFA_Converter::RE2NFA() {
 		}
 	}
 
+	//将剩下的NFA进行合并
 	while (OPStack.size() != 0)
 	{
 		if (OPStack.top() == '+' && singleNFAStack.size() >= 2)
@@ -288,27 +270,8 @@ void RE2NFA_Converter::RE2NFA() {
 			singleNFAStack.push(mergeNFA);
 		}
 	}
-
-	if (singleNFAStack.size() >= 2)
-	{
-		stackTop1NFA = singleNFAStack.top();
-		singleNFAStack.pop();
-		stackTop2NFA = singleNFAStack.top();
-		singleNFAStack.pop();
-
-		mergeNFA_AND(&mergeNFA, &stackTop1NFA, &stackTop2NFA, this->nfa.edgeSet);
-		singleNFAStack.push(mergeNFA);
-	}
-
-	//全部合并结束后,最后入栈的那个就是最后的NFA的状态。
-
-	cout << "最后栈中的nfa的个数是：" << singleNFAStack.size() << "---------------" << endl;
-	cout << singleNFAStack.top().start;
-	cout << singleNFAStack.top().end;
 	if (singleNFAStack.size() > 0)
 	{
-		//this->nfa.startStateSet.push_back(singleNFAStack.top().start);
-		//this->nfa.endStateSet.push_back(singleNFAStack.top().end);
 		this->nfa.startState = singleNFAStack.top().start;
 		this->nfa.endState = singleNFAStack.top().end;
 	}

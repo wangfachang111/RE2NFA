@@ -1,9 +1,11 @@
-// RE2NFA_Converter.h: interface for the REManage class.
+
+
 #include "RE2NFA_Converter.h"
+#include <windows.system.h>
 
-
-/**检测是否是字母
-是返回true,否则false
+/*
+*检测是否是字母
+*是返回true,否则false
 */
 bool is_letter(char check)
 {
@@ -36,14 +38,14 @@ int check_character(string check_string)
 	}
 	return true;
 }
-/**先检查括号是否匹配
+/*
+*先检查括号是否匹配
 *合法返回true,非法返回false
 */
 int check_parenthesis(string check_string)
 {
 	int length = check_string.size();
-	//char * check = new char[length+1];
-	//wcscpy(check, length+1, check_string.c_str());
+
 	string check = check_string;
 	stack<int> STACK;
 	for (int i = 0; i < length; i++)
@@ -82,13 +84,15 @@ int check_legal(string check_string)
 }
 
 
-
-
-
-
-
-/**添加交操作符“+”，
-例如 abb->a+b+b
+//添加操作符“+”，
+/**********************************************
+      a    *     (		)	 |
+a     +    空    +     空    空
+*     +    空    +     空    空
+(     空   非法  空    空    非法
+)     +    空    +     空    非法
+|     空   非法  非法  非法  非法
+***********************************************
 */
 string add_join_symbol(string add_string)
 {
@@ -104,8 +108,7 @@ string add_join_symbol(string add_string)
 
 		//先将字符加进去
 		return_string[return_string_length++] = first;
-		//要加的可能性如ab 、 *b 、 a( 、 )b 等情况
-		//若第二个是字母、第一个不是'('、'|'都要添加
+		
 		if (is_letter(first) && (is_letter(second) || second == '('))
 		{
 			return_string[return_string_length++] = '+';
@@ -123,7 +126,7 @@ string add_join_symbol(string add_string)
 	return_string[return_string_length++] = second;
 	return_string[return_string_length] = '\0';
 	string STRING(return_string);
-	cout << "加'+'后的表达式：" << STRING << endl;
+	//cout << "加'+'后的表达式：" << STRING << endl;
 	return STRING;
 }
 
@@ -143,16 +146,20 @@ int main()
 	getline(in,expr);
 	in.close();
 
+	if (check_legal(expr) == false)
+	{
+		cout << "输入不合法，从新输入"<<endl;
+		return 0;
+	}
 	string expr2=add_join_symbol(expr);
-	cout << "添加+号之后的表达式："<<expr2 << endl;
-
 
 	RE2NFA_Converter converter;
 	converter.setRE(expr2);
-
     converter.RE2NFA();
 	cout << "处理完成了，结果如下" << endl;
 	converter.outPutResult();
-	return 0;
 
+	//执行下面命令行将Result.txt转换成图片，保存在当前项目的目录下
+	system("dot -Tpng -o Result.png Result.txt");
+	return 0;
 }
