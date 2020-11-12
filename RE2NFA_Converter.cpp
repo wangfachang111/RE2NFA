@@ -127,6 +127,7 @@ void RE2NFA_Converter::mergeNFA_Cycle(singleNFA* mergeNFA, singleNFA* NFA1, vect
 
 void RE2NFA_Converter::outPutResult()
 {
+	cout << "处理完成了，结果如下！！！" << endl;
 	cout << "=================Start==================" << endl;	//输入流 
 	cout << endl;
 
@@ -145,12 +146,9 @@ void RE2NFA_Converter::outPutResult()
 	{
 		cout << "Index " << i << ": ";
 		cout << this->nfa.edgeSet[i].start << "  "
-			<< this->nfa.edgeSet[i].symbol << "  "
-			<< this->nfa.edgeSet[i].end << endl;
+			 << this->nfa.edgeSet[i].symbol << "  "
+			 << this->nfa.edgeSet[i].end << endl;
 	}
-	cout << endl;
-
-
 
 	//将结果输出到Result.txt文件
 	fstream out;

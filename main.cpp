@@ -1,8 +1,6 @@
 
-
 #include "RE2NFA_Converter.h"
 #include <windows.system.h>
-
 /*
 *检测是否是字母
 *是返回true,否则false
@@ -21,7 +19,7 @@ int check_character(string check_string)
 	for (int i = 0; i < length; i++)
 	{
 		char check = check_string.at(i);
-		if (is_letter(check))//小写和大写之间有5个字符，故不能连续判断
+		if (is_letter(check))
 		{
 			//cout<<"字母 合法";
 		}
@@ -130,33 +128,35 @@ string add_join_symbol(string add_string)
 	return STRING;
 }
 
-int main()
+void readExpr(string fileName,string &expr)
 {
-	string expr;
-	//cout << "输入一个正规式：";
-	//cin >> expr;
-	
 	fstream in;
-	in.open("inputString.txt");
+	in.open(fileName);
 	if (in.fail())
 	{
-		cout << "inputString.txt文件打开失败" << endl;
+		cout << "文件打开失败" << endl;
 		exit(0);
 	}
-	getline(in,expr);
+	getline(in, expr);
 	in.close();
 
 	if (check_legal(expr) == false)
 	{
-		cout << "输入不合法，从新输入"<<endl;
-		return 0;
+		cout << "输入不合法，从新输入" << endl;
+		exit(0);
 	}
+	return;
+}
+int main()
+{
+	string expr;
+	string filename = "inputString.txt";
+	readExpr(filename,expr);
 	string expr2=add_join_symbol(expr);
 
 	RE2NFA_Converter converter;
 	converter.setRE(expr2);
     converter.RE2NFA();
-	cout << "处理完成了，结果如下" << endl;
 	converter.outPutResult();
 
 	//执行下面命令行将Result.txt转换成图片，保存在当前项目的目录下

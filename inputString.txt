@@ -1,1 +1,1 @@
-(a|b)*abc(abd)*
+(a|b)*abc(ad)*
